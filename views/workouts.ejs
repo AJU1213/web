@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workouts</title>
+  <!-- Link to your CSS styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Page Header -->
+  <header>
+    <h1>Workout Tracker</h1>
+    <!-- Navigation Links -->
+    <nav>
+      <a href="/">Home</a>
+      <a href="/workouts/new" id="add-workout-link">Add New Workout</a>
+    </nav>
+  </header>
+
+
+  <a href="/workouts/new">
+    <button>Add New Workout</button>
+  </a>
+
+  <!-- Main Content Section -->
+  <main>
+    <h2>All Workouts</h2>
+    <!-- Check if workouts are available -->
+    <% if (workouts.length > 0) { %>
+      <ul>
+        <!-- Loop through the workouts array and display each workout -->
+        <% workouts.forEach(workout => { %>
+          <li>
+            <h3><%= workout.name %></h3>
+            <p><strong>Duration:</strong> <%= workout.duration %> minutes</p>
+            <p><strong>Description:</strong> <%= workout.description %></p>
+            <!-- Links for Edit and Delete actions -->
+            <a href="#" class="edit-link" data-id="<%= workout._id %>">Edit</a> | 
+            <a href="#" class="delete-link" data-id="<%= workout._id %>" onclick="return confirm('Are you sure you want to delete this workout?')">Delete</a>
+          </li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <!-- Display message if no workouts are available -->
+      <p>No workouts found. Click "Add New Workout" to get started!</p>
+    <% } %>
+  </main>
+
+  
+  <!-- Page Footer -->
+  <footer>
+    <p>&copy; 2024 Workout Tracker</p>
+  </footer>
+
+  <script>
+    // Check for JWT token in localStorage
+    const token = localStorage.getItem('token');
+
+    // If no token, restrict actions
+    if (!token) {
+      // Disable Add New Workout link
+      const addWorkoutLink = document.getElementById('add-workout-link');
+      addWorkoutLink.style.pointerEvents = 'none';
+      addWorkoutLink.style.opacity = '0.5';
+      addWorkoutLink.title = 'Login required to add a workout';
+
+      // Disable Edit and Delete links
+      const editLinks = document.querySelectorAll('.edit-link');
+      const deleteLinks = document.querySelectorAll('.delete-link');
+
+      editLinks.forEach(link => {
+        link.style.pointerEvents = 'none';
+        link.style.opacity = '0.5';
+        link.title = 'Login required to edit workouts';
+      });
+
+      deleteLinks.forEach(link => {
+        link.style.pointerEvents = 'none';
+        link.style.opacity = '0.5';
+        link.title = 'Login required to delete workouts';
+      });
+    } else {
+      // Add JWT token to Edit and Delete requests
+      document.querySelectorAll('.edit-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const workoutId = link.getAttribute('data-id');
+          window.location.href = `/workouts/${workoutId}/edit?token=${token}`;
+        });
+      });
+
+      document.querySelectorAll('.delete-link').forEach(link => {
+        link.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const workoutId = link.getAttribute('data-id');
+          if (confirm('Are you sure you want to delete this workout?')) {
+            try {
+              const response = await fetch(`/workouts/${workoutId}/delete`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+
+              if (response.ok) {
+                alert('Workout deleted successfully!');
+                window.location.reload(); // Reload to reflect changes
+              } else {
+                const data = await response.json();
+                alert(data.message || 'Failed to delete workout.');
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('An error occurred while deleting the workout.');
+            }
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

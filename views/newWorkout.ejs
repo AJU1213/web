@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Workout</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Add a New Workout</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/workouts">View Workouts</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+  <%- include('partials/header') %>
+  <main>
+    <h2>Add New Workout</h2>
+    <!-- The form only serves as a skeleton because submission is handled via JS -->
+    <form id="add-workout-form">
+      <label for="name">Workout Name:</label>
+      <input type="text" id="name" name="name" placeholder="Enter workout name" required>
+
+      <label for="duration">Duration (minutes):</label>
+      <input type="number" id="duration" name="duration" placeholder="e.g., 30" required>
+
+      <label for="type">Workout Type:</label>
+      <select id="type" name="type" required>
+        <option value="Cardio">Cardio</option>
+        <option value="Strength">Strength</option>
+        <option value="Flexibility">Flexibility</option>
+        <option value="Balance">Balance</option>
+      </select>
+
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" placeholder="Brief description of your workout" required></textarea>
+
+      <button type="submit">Add Workout</button>
+    </form>
+  </main>
+  <%- include('partials/footer') %>
+
+  <script>
+    // Retrieve the JWT token from localStorage
+    const token = localStorage.getItem('token');
+
+    // Select the form and attach a submit event listener
+    const form = document.querySelector('#add-workout-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent the default form submission
+
+      const formData = new FormData(form);
+      const workoutData = Object.fromEntries(formData.entries()); // Convert FormData to JSON
+
+      try {
+        const response = await fetch('/workouts/add', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(workoutData),
+        });
+
+        if (response.ok) {
+          alert('Workout added successfully!');
+          window.location.href = '/workouts'; // Redirect to the workouts page
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Failed to add workout.');
+        }
+      } catch (err) {
+        console.error('Error adding workout:', err);
+        alert('An error occurred. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

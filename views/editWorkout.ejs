@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Workout</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Edit Workout</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/workouts">View Workouts</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+  <main>
+    <!-- The form now uses data-workout-id to store the workout ID -->
+    <form data-workout-id="<%= workout._id %>">
+      <label for="name">Workout Name:</label>
+      <input type="text" id="name" name="name" value="<%= workout.name %>" required>
+
+      <label for="duration">Duration (minutes):</label>
+      <input type="number" id="duration" name="duration" value="<%= workout.duration %>" required>
+
+      <label for="type">Workout Type:</label>
+      <select id="type" name="type" required>
+        <option value="Cardio" <%= workout.type === 'Cardio' ? 'selected' : '' %>>Cardio</option>
+        <option value="Strength" <%= workout.type === 'Strength' ? 'selected' : '' %>>Strength</option>
+        <option value="Flexibility" <%= workout.type === 'Flexibility' ? 'selected' : '' %>>Flexibility</option>
+        <option value="Balance" <%= workout.type === 'Balance' ? 'selected' : '' %>>Balance</option>
+      </select>
+
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" required><%= workout.description %></textarea>
+
+      <button type="submit">Update Workout</button>
+    </form>
+  </main>
+
+  <!-- Link to the editWorkout.js script -->
+  <script src="/js/editWorkout.js"></script>
+</body>
+</html>
